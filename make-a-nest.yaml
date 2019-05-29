@@ -1,0 +1,78 @@
+# This is a single compute with two numa nodes, to show some nested.
+
+defaults:
+    request_headers:
+        accept: application/json
+        content-type: application/json
+        openstack-api-version: placement latest
+        x-auth-token: $ENVIRON['TOKEN']
+
+tests:
+    - name: create one compute node
+      POST: /resource_providers
+      data:
+          uuid: $ENVIRON['CN_UUID']
+          name: $ENVIRON['CN_UUID']
+
+    - name: set compute node inventory
+      PUT: /resource_providers/$ENVIRON['CN_UUID']/inventories
+      data:
+          resource_provider_generation: 0
+          inventories:
+              DISK_GB:
+                  total: 20480
+
+    - name: set compute node traits
+      PUT: /resource_providers/$ENVIRON['CN_UUID']/traits
+      data:
+          resource_provider_generation: 1
+          traits:
+              - $ENVIRON['CN_TRAITS']
+
+    - name: create numa 1
+      POST: /resource_providers
+      data:
+          uuid: $ENVIRON['N1_UUID']
+          name: numa 1-$ENVIRON['N1_UUID']
+          parent_provider_uuid: $ENVIRON['CN_UUID']
+
+    - name: set numa 1 inventory
+      PUT: /resource_providers/$ENVIRON['N1_UUID']/inventories
+      data:
+          resource_provider_generation: 0
+          inventories:
+              VCPU:
+                  total: 16
+              MEMORY_MB:
+                  total: 16777216
+
+    - name: set numa 1 traits
+      PUT: /resource_providers/$ENVIRON['N1_UUID']/traits
+      data:
+          resource_provider_generation: 1
+          traits:
+              - $ENVIRON['N1_TRAITS']
+
+    - name: create numa 2
+      POST: /resource_providers
+      data:
+          uuid: $ENVIRON['N2_UUID']
+          name: numa 2-$ENVIRON['N2_UUID']
+          parent_provider_uuid: $ENVIRON['CN_UUID']
+
+    - name: set numa 2 inventory
+      PUT: /resource_providers/$ENVIRON['N2_UUID']/inventories
+      data:
+          resource_provider_generation: 0
+          inventories:
+              VCPU:
+                  total: 16
+              MEMORY_MB:
+                  total: 16777216
+
+    - name: set numa 2 traits
+      PUT: /resource_providers/$ENVIRON['N2_UUID']/traits
+      data:
+          resource_provider_generation: 1
+          traits:
+              - $ENVIRON['N2_TRAITS']
